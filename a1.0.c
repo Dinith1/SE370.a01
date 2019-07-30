@@ -95,10 +95,10 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
-  printf("starting---\n");
+  printf("starting--->\n");
   merge_sort(&start_block);
-  printf("---ending\n");
-  
+  printf("--->ending\n");
+
   printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
   exit(EXIT_SUCCESS);
 }
