@@ -12,7 +12,7 @@
 	- `pthread_create` and `pthread_join`.
 - Increase stack size (change `pthread` attributes).
 	- `pthread_attr_init` and `pthread_attr_setstacksize`.
-- Time/record sorting of 100,000,000 numbers - `./a1,2 100000000`.
+- Time/record sorting of 100,000,000 numbers - `./a1.2 100000000`.
 
 
 # Step 3
