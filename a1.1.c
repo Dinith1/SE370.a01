@@ -96,9 +96,7 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
-
-
-  const rlim_t stackSize = 64L * 1024L * 1024L; // min stack size = 64MB
+  const rlim_t desiredStackSize = 64L * 1024L * 1024L;  // min stack size = 64MB
   struct rlimit rl;
   /*
   struct rlimit {
@@ -110,21 +108,21 @@ int main(int argc, char *argv[]) {
   int result = getrlimit(RLIMIT_STACK, &rl);
   printf("rlimit = %ld\n", rl.rlim_cur);
 
-  result = setrlimit(RLIMIT_STACK, stackSize);
+  rl.rlim_max = desiredStackSize;
+  result = setrlimit(RLIMIT_STACK, &rl);
+
   if (!result) {
     printf("Updated stack size\n");
     result = getrlimit(RLIMIT_STACK, &rl);
-  printf("rlimit = %ld\n", rl.rlim_cur);
+    printf("rlimit = %ld\n", rl.rlim_cur);
   }
 
-
-
   printf("starting---\n");
-  clock_t begin = clock(); // Start timing
+  clock_t begin = clock();  // Start timing
 
   merge_sort(&start_block);
 
-  clock_t end = clock(); // End timing
+  clock_t end = clock();  // End timing
   double time = (double)(end - begin) / CLOCKS_PER_SEC;
   printf("---ending\n");
 
