@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
   }
 
   const rlim_t desiredStackSize =
-      800L * 1024L * 1024L;  // min stack size = 800MB
+      1600L * 1024L * 1024L;  // min stack size = 1600MB
   struct rlimit rl;
   /*
   struct rlimit {
