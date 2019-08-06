@@ -98,11 +98,24 @@ int main(int argc, char *argv[]) {
 
 
 
-  const rlim_t stackSize = 64L * 1024L * 1024L; // min stack size = 64Mb (MB??)
+  const rlim_t stackSize = 64L * 1024L * 1024L; // min stack size = 64MB
   struct rlimit rl;
-  int result;
-  result = getrlimit(RLIMIT_STACK, &rl);
+  /*
+  struct rlimit {
+    rlim_t rlim_curr; // Soft limit
+    rlim_t rlim_max; // hard limit (celing for rlim_cur)
+  }
+   */
+
+  int result = getrlimit(RLIMIT_STACK, &rl);
   printf("rlimit = %ld\n", rl.rlim_cur);
+
+  result = setrlimit(RLIMIT_STACK, stackSize);
+  if (!result) {
+    printf("Updated stack size\n");
+    result = getrlimit(RLIMIT_STACK, &rl);
+  printf("rlimit = %ld\n", rl.rlim_cur);
+  }
 
 
 
