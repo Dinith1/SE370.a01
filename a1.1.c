@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
   struct rlimit rl;
   int result;
   result = getrlimit(RLIMIT_STACK, &rl);
-  printf("rlimit = %f\n", rl.rlim_cur);
+  printf("rlimit = %ld\n", rl.rlim_cur);
 
 
 
