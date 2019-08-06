@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/resource.h>
+#include <time.h>
 #include <unistd.h>
 
 #define SIZE 2
@@ -95,9 +96,26 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
+
+
+  const rlim_t stackSize = 64L * 1024L * 1024L; // min stack size = 64Mb (MB??)
+  struct rlimit rl;
+  int result;
+  result = getrlimit(RLIMIT_STACK, &rl);
+  printf("rlimit = %d\n", rl.rlim_cur);
+
+
+
   printf("starting---\n");
+  clock_t begin = clock(); // Start timing
+
   merge_sort(&start_block);
+
+  clock_t end = clock(); // End timing
+  double time = (double)(end - begin) / CLOCKS_PER_SEC;
   printf("---ending\n");
+
+  printf("Time taken: %.9f\n", time);
 
   printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
   exit(EXIT_SUCCESS);
