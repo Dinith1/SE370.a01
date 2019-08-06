@@ -96,7 +96,8 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
-  const rlim_t desiredStackSize = 800L * 1024L * 1024L;  // min stack size = 800MB
+  const rlim_t desiredStackSize =
+      800L * 1024L * 1024L;  // min stack size = 800MB
   struct rlimit rl;
   /*
   struct rlimit {
@@ -109,6 +110,7 @@ int main(int argc, char *argv[]) {
   printf("rlimit = %ld\n", rl.rlim_cur);
 
   rl.rlim_cur = desiredStackSize;
+  rl.rlim_max = 2L * desiredStackSize;
   result = setrlimit(RLIMIT_STACK, &rl);
 
   if (!result) {
