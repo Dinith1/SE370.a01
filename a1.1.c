@@ -96,8 +96,9 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
-  const rlim_t desiredStackSize =
-      1600L * 1024L * 1024L;  // min stack size = 1600MB
+  // CHANGE CODE TO CHECK CURRENT RLIMIT FOR STACK, AND INCREASE IF NEEDED
+
+  const rlim_t desiredStackSize = 1000L * 1024L * 1024L;  // 1000MB
   struct rlimit rl;
   /*
   struct rlimit {
@@ -107,18 +108,25 @@ int main(int argc, char *argv[]) {
    */
 
   int result = getrlimit(RLIMIT_STACK, &rl);
-  printf("rlimit = %ld\n", rl.rlim_cur);
-
-  rl.rlim_cur = desiredStackSize;
-  rl.rlim_max = 2L * desiredStackSize;
-  result = setrlimit(RLIMIT_STACK, &rl);
+  printf("old rlimit = %ld\n", rl.rlim_cur);
+  printf("old MAX = %ld\n\n", rl.rlim_max);
 
   if (!result) {
-    printf("Updated stack size\n");
-    result = getrlimit(RLIMIT_STACK, &rl);
-    printf("rlimit = %ld\n", rl.rlim_cur);
+    rl.rlim_cur = desiredStackSize;
+    result = setrlimit(RLIMIT_STACK, &rl);
+
+    if (!result) {
+      printf("Updated stack size\n");
+      result = getrlimit(RLIMIT_STACK, &rl);
+      printf("new rlimit = %ld\n", rl.rlim_cur);
+      printf("new MAX = %ld\n\n", rl.rlim_max);
+    } else {
+      printf("Failed to increase stack size\n");
+      exit(EXIT_FAILURE);
+    }
+
   } else {
-    printf("Failed to increase stack size\n");
+    printf("Failed to get stack size\n");
     exit(EXIT_FAILURE);
   }
 
