@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
   int result = getrlimit(RLIMIT_STACK, &rl);
   printf("rlimit = %ld\n", rl.rlim_cur);
 
-  rl.rlim_max = desiredStackSize;
+  rl.rlim_cur = desiredStackSize;
   result = setrlimit(RLIMIT_STACK, &rl);
 
   if (!result) {
