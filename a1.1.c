@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 
   // CHANGE CODE TO CHECK CURRENT RLIMIT FOR STACK, AND INCREASE IF NEEDED
 
-  const rlim_t desiredStackSize = 1000L * 1024L * 1024L;  // 1000MB
+  const rlim_t desiredStackSize = 5000L * 1024L * 1024L;  // 1000MB
   struct rlimit rl;
   /*
   struct rlimit {
