@@ -77,7 +77,31 @@ bool is_sorted(int data[], int size) {
   return sorted;
 }
 
+void r() {
+  // CHANGE CODE TO CHECK CURRENT RLIMIT FOR STACK, AND INCREASE IF NEEDED
+
+  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
+  struct rlimit rl;
+  /*
+  struct rlimit {
+    rlim_t rlim_curr; // Soft limit
+    rlim_t rlim_max; // hard limit (celing for rlim_cur)
+  }
+   */
+
+  int result = getrlimit(RLIMIT_STACK, &rl);
+  printf("old rlimit = %ld\n", rl.rlim_cur);
+  printf("old MAX = %ld\n\n", rl.rlim_max);
+
+    rl.rlim_cur = desiredStackSize;
+    result = setrlimit(RLIMIT_STACK, &rl);
+  
+}
+
 int main(int argc, char *argv[]) {
+
+  r();
+
   long size;
 
   if (argc < 2) {
@@ -94,40 +118,6 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < size; i++) {
     data[i] = rand();
-  }
-
-  // CHANGE CODE TO CHECK CURRENT RLIMIT FOR STACK, AND INCREASE IF NEEDED
-
-  const rlim_t desiredStackSize = 5000L * 1024L * 1024L;  // 1000MB
-  struct rlimit rl;
-  /*
-  struct rlimit {
-    rlim_t rlim_curr; // Soft limit
-    rlim_t rlim_max; // hard limit (celing for rlim_cur)
-  }
-   */
-
-  int result = getrlimit(RLIMIT_STACK, &rl);
-  printf("old rlimit = %ld\n", rl.rlim_cur);
-  printf("old MAX = %ld\n\n", rl.rlim_max);
-
-  if (!result) {
-    rl.rlim_cur = desiredStackSize;
-    result = setrlimit(RLIMIT_STACK, &rl);
-
-    if (!result) {
-      printf("Updated stack size\n");
-      result = getrlimit(RLIMIT_STACK, &rl);
-      printf("new rlimit = %ld\n", rl.rlim_cur);
-      printf("new MAX = %ld\n\n", rl.rlim_max);
-    } else {
-      printf("Failed to increase stack size\n");
-      exit(EXIT_FAILURE);
-    }
-
-  } else {
-    printf("Failed to get stack size\n");
-    exit(EXIT_FAILURE);
   }
 
   printf("starting---\n");
