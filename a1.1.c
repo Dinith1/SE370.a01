@@ -99,7 +99,7 @@ void increaseStackSize() {
     exit(EXIT_FAILURE);
   }
 
-  printf("New rlimit = %ldMB\n", rl.rlim_cur / 1000000);
+  printf("New stack size = %ldMB\n", rl.rlim_cur / 1000000);
 }
 
 int main(int argc, char *argv[]) {
