@@ -77,30 +77,33 @@ bool is_sorted(int data[], int size) {
   return sorted;
 }
 
-void r() {
-  // CHANGE CODE TO CHECK CURRENT RLIMIT FOR STACK, AND INCREASE IF NEEDED
-
+/* Increase the stack size */
+void increaseStackSize() {
   const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
   struct rlimit rl;
-  /*
-  struct rlimit {
-    rlim_t rlim_curr; // Soft limit
-    rlim_t rlim_max; // hard limit (celing for rlim_cur)
-  }
-   */
 
   int result = getrlimit(RLIMIT_STACK, &rl);
-  printf("old rlimit = %ld\n", rl.rlim_cur);
-  printf("old MAX = %ld\n\n", rl.rlim_max);
 
-    rl.rlim_cur = desiredStackSize;
-    result = setrlimit(RLIMIT_STACK, &rl);
-  
+  if (result != 0) {
+    fprintf(stderr, "%s", "Failed to get the current stack size\n");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("Old stack size = %ldMB\n", rl.rlim_cur / 1000000);
+
+  rl.rlim_cur = desiredStackSize;
+  result = setrlimit(RLIMIT_STACK, &rl);
+
+  if (result != 0) {
+    fprintf(stderr, "%s", "Failed to increase the stack size\n");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("New rlimit = %ldMB\n", rl.rlim_cur / 1000000);
 }
 
 int main(int argc, char *argv[]) {
-
-  r();
+  increaseStackSize();
 
   long size;
 
