@@ -24,8 +24,6 @@ struct block {
   int *first;
 };
 
-pthread_t thread2;
-
 // void print_block_data(struct block *blk) {
 //     printf("size: %d address: %p\n", blk->size, blk->first);
 // }
@@ -101,25 +99,49 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
+  // Split data into two blocks for processing on two threads
   struct block left_block;
   struct block right_block;
-  
+
   left_block.size = start_block.size / 2;
   left_block.first = start_block.first;
 
   right_block.size = left_block.size + (start_block.size % 2);
   right_block.first = start_block.first + left_block.size;
 
+  // Create/set attributes of the second thread that will be created
+  pthread_attr_t thread2_attr;
+
+  if (pthread_attr_init(&thread2_attr) != 0) {
+    fprintf(stderr, "ERROR: Failed to initialize new thread attributes\n");
+    exit(EXIT_FAILURE);
+  }
+
+  size_t thread2_stacksize = 512 * 1024 * 1024; // 500MB
+
+  if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize)) {
+    fprintf(stderr, "ERROR: Failed to increase stack size of second tread\n");
+    exit(EXIT_FAILURE);
+  }
+
   printf("starting---\n");
 
-  // Perform merge_sort of left_block on the second thread
-  if (pthread_create(&thread2, NULL, merge_sort, &left_block)) {
-    fprintf(stderr, "Failed to create second thread");
+  pthread_t thread2;
+
+  // Create a second thread and perform merge_sort of left_block on it
+  if (pthread_create(&thread2, &thread2_attr, merge_sort, &left_block)) {
+    fprintf(stderr, "ERROR: Failed to create second thread\n");
     exit(EXIT_FAILURE);
   }
 
   // Perform merge_sort of the right_block on the original thread
   merge_sort(&right_block);
+
+  // Wait for the second thread to finish
+  if (pthread_join(thread2, NULL)) {
+    fprintf(stderr, "ERROR: Failed to join thread\n");
+    exit(EXIT_FAILURE);
+  }
 
   // Finally merge sorted blocks from the two threads
   merge(&left_block, &right_block);

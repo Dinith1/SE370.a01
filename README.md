@@ -66,5 +66,5 @@
 
 
 # Bonus
-- **a1.bonus.c** -> Write quickest version of merge sort that you can base on original code.
+- **a1.bonus.c** -> Write quickest version of merge sort that you can based on original code.
 - In report include a section describing the program with its timing results.
