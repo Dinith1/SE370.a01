@@ -82,7 +82,7 @@ bool is_sorted(int data[], int size) {
 
 /* Increase the stack size */
 void increaseStackSize() {
-  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
+  const rlim_t desiredStackSize = 512 * 1024 * 1024;  // 500MB
   struct rlimit rl;
 
   int result = getrlimit(RLIMIT_STACK, &rl);
@@ -106,8 +106,9 @@ void increaseStackSize() {
 }
 
 int main(int argc, char *argv[]) {
+  // Set the stack size of the original thread first
   increaseStackSize();
-  
+
   long size;
 
   if (argc < 2) {
@@ -144,6 +145,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  // Set the stack size of the second thread
   size_t thread2_stacksize = 512 * 1024 * 1024;  // 500MB
 
   if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize)) {
