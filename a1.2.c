@@ -80,7 +80,34 @@ bool is_sorted(int data[], int size) {
   return sorted;
 }
 
+/* Increase the stack size */
+void increaseStackSize() {
+  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
+  struct rlimit rl;
+
+  int result = getrlimit(RLIMIT_STACK, &rl);
+
+  if (result != 0) {
+    fprintf(stderr, "%s", "Failed to get the current stack size\n");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("Old stack size = %ldMB\n", rl.rlim_cur / 1000000);
+
+  rl.rlim_cur = desiredStackSize;
+  result = setrlimit(RLIMIT_STACK, &rl);
+
+  if (result != 0) {
+    fprintf(stderr, "%s", "Failed to increase the stack size\n");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("New stack size = %ldMB\n", rl.rlim_cur / 1000000);
+}
+
 int main(int argc, char *argv[]) {
+  increaseStackSize();
+  
   long size;
 
   if (argc < 2) {
@@ -117,7 +144,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  size_t thread2_stacksize = 512 * 1024 * 1024; // 500MB
+  size_t thread2_stacksize = 512 * 1024 * 1024;  // 500MB
 
   if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize)) {
     fprintf(stderr, "ERROR: Failed to increase stack size of second tread\n");
