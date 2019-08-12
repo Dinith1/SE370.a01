@@ -123,8 +123,6 @@ pthread_t merge_sort_new_thread(struct block *data) {
     exit(EXIT_FAILURE);
   }
 
-  printf("starting---\n");
-
   pthread_t thread;
 
   // Create a new thread and perform merge_sort of left_block on it
@@ -170,7 +168,7 @@ int main(int argc, char *argv[]) {
 
   printf("starting---\n");
 
-  pthread_t thread2 = merge_sort_new_thread(&right_block);
+  pthread_t thread2 = merge_sort_new_thread(&left_block);
 
   // Perform merge_sort of the right_block on the original thread
   merge_sort(&right_block);
