@@ -82,7 +82,7 @@ bool is_sorted(int data[], int size) {
 
 /* Increase the stack size */
 void increaseStackSize() {
-  const rlim_t desiredStackSize = 512 * 1024 * 1024;  // 500MB
+  const rlim_t desiredStackSize = 800 * 1024 * 1024;  // 800MB
   struct rlimit rl;
 
   int result = getrlimit(RLIMIT_STACK, &rl);
@@ -137,6 +137,9 @@ int main(int argc, char *argv[]) {
   right_block.size = left_block.size + (start_block.size % 2);
   right_block.first = start_block.first + left_block.size;
 
+
+  printf("starting---\n");
+
   // Create/set attributes of the second thread that will be created
   pthread_attr_t thread2_attr;
 
@@ -146,14 +149,12 @@ int main(int argc, char *argv[]) {
   }
 
   // Set the stack size of the second thread
-  size_t thread2_stacksize = 512 * 1024 * 1024;  // 500MB
+  size_t thread2_stacksize = 800 * 1024 * 1024;  // 800MB
 
   if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize)) {
     fprintf(stderr, "ERROR: Failed to increase stack size of second tread\n");
     exit(EXIT_FAILURE);
   }
-
-  printf("starting---\n");
 
   pthread_t thread2;
 
@@ -165,6 +166,7 @@ int main(int argc, char *argv[]) {
 
   // Perform merge_sort of the right_block on the original thread
   merge_sort(&right_block);
+
 
   // Wait for the second thread to finish
   if (pthread_join(thread2, NULL)) {
