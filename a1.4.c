@@ -83,34 +83,31 @@ void *merge_sort(void *my_data) {
 
       // Call merge_sort() on a new thread as well
 
+      pthread_mutex_lock(&mutex);
+      numActiveThreads++;
+      pthread_mutex_unlock(&mutex);
+
       // Create/set attributes of the 'left' thread that will be created
       pthread_attr_t thread_left_attr;
 
       if (pthread_attr_init(&thread_left_attr) != 0) {
-        fprintf(stderr,
-                "ERROR: Failed to initialize new left thread attributes\n");
+        fprintf(stderr, "ERROR: Failed to initialize new left thread attributes\n");
         exit(EXIT_FAILURE);
       }
 
       // Set the stack size of the left thread
       size_t thread_left_stacksize = 1024 * 1024 * 1024;  // 1000MB
 
-      if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize) !=
-          0) {
+      if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize) != 0) {
         fprintf(stderr, "ERROR: Failed to increase stack size of left tread\n");
         exit(EXIT_FAILURE);
       }
 
       // Create the left thread and perform merge_sort of left_block on it
-      if (pthread_create(&thread_left, &thread_left_attr, merge_sort,
-                         &left_block) != 0) {
+      if (pthread_create(&thread_left, &thread_left_attr, merge_sort, &left_block) != 0) {
         fprintf(stderr, "ERROR: Failed to create left thread\n");
         exit(EXIT_FAILURE);
       }
-
-      pthread_mutex_lock(&mutex);
-      numActiveThreads++;
-      pthread_mutex_unlock(&mutex);
 
       merge_sort(&right_block);
 
@@ -174,8 +171,7 @@ int main(int argc, char *argv[]) {
 
   // Check if there's at least 4 cores on the machine
   if (!check4Cores()) {
-    fprintf(stderr, "ERROR: Need at least 4 cores (you have %d)\n",
-            MAX_NUM_CORES);
+    fprintf(stderr, "ERROR: Need at least 4 cores (you have %d)\n", MAX_NUM_CORES);
     exit(EXIT_FAILURE);
   }
 
