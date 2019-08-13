@@ -85,9 +85,7 @@ void increaseStackSize() {
   const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
   struct rlimit rl;
 
-  int result = getrlimit(RLIMIT_STACK, &rl);
-
-  if (result != 0) {
+  if (getrlimit(RLIMIT_STACK, &rl) != 0) {
     fprintf(stderr, "%s", "Failed to get the current stack size\n");
     exit(EXIT_FAILURE);
   }
@@ -95,9 +93,8 @@ void increaseStackSize() {
   printf("Old stack size = %ldMB\n", rl.rlim_cur / 1000000);
 
   rl.rlim_cur = desiredStackSize;
-  result = setrlimit(RLIMIT_STACK, &rl);
 
-  if (result != 0) {
+  if (setrlimit(RLIMIT_STACK, &rl) != 0) {
     fprintf(stderr, "%s", "Failed to increase the stack size\n");
     exit(EXIT_FAILURE);
   }
@@ -137,7 +134,6 @@ int main(int argc, char *argv[]) {
   right_block.size = left_block.size + (start_block.size % 2);
   right_block.first = start_block.first + left_block.size;
 
-
   printf("starting---\n");
 
   // Create/set attributes of the second thread that will be created
@@ -151,7 +147,7 @@ int main(int argc, char *argv[]) {
   // Set the stack size of the second thread
   size_t thread2_stacksize = 1024 * 1024 * 1024;  // 1000MB
 
-  if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize)) {
+  if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize) != 0) {
     fprintf(stderr, "ERROR: Failed to increase stack size of second tread\n");
     exit(EXIT_FAILURE);
   }
@@ -159,7 +155,7 @@ int main(int argc, char *argv[]) {
   pthread_t thread2;
 
   // Create a second thread and perform merge_sort of left_block on it
-  if (pthread_create(&thread2, &thread2_attr, merge_sort, &left_block)) {
+  if (pthread_create(&thread2, &thread2_attr, merge_sort, &left_block) != 0) {
     fprintf(stderr, "ERROR: Failed to create second thread\n");
     exit(EXIT_FAILURE);
   }
@@ -167,9 +163,8 @@ int main(int argc, char *argv[]) {
   // Perform merge_sort of the right_block on the original thread
   merge_sort(&right_block);
 
-
   // Wait for the second thread to finish
-  if (pthread_join(thread2, NULL)) {
+  if (pthread_join(thread2, NULL) != 0) {
     fprintf(stderr, "ERROR: Failed to join thread\n");
     exit(EXIT_FAILURE);
   }

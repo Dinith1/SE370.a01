@@ -66,14 +66,16 @@ void *merge_sort(void *my_data) {
     pthread_attr_t thread_left_attr;
 
     if (pthread_attr_init(&thread_left_attr) != 0) {
-      fprintf(stderr, "ERROR: Failed to initialize new left thread attributes\n");
+      fprintf(stderr,
+              "ERROR: Failed to initialize new left thread attributes\n");
       exit(EXIT_FAILURE);
     }
 
     // Set the stack size of the left thread
     size_t thread_left_stacksize = 1024 * 1024 * 1024;  // 1000MB
 
-    if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize)) {
+    if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize) !=
+        0) {
       fprintf(stderr, "ERROR: Failed to increase stack size of left tread\n");
       exit(EXIT_FAILURE);
     }
@@ -81,7 +83,8 @@ void *merge_sort(void *my_data) {
     pthread_t thread_left;
 
     // Create the left thread and perform merge_sort of left_block on it
-    if (pthread_create(&thread_left, &thread_left_attr, merge_sort, &left_block)) {
+    if (pthread_create(&thread_left, &thread_left_attr, merge_sort,
+                       &left_block) != 0) {
       fprintf(stderr, "ERROR: Failed to create left thread\n");
       exit(EXIT_FAILURE);
     }
@@ -90,14 +93,16 @@ void *merge_sort(void *my_data) {
     pthread_attr_t thread_right_attr;
 
     if (pthread_attr_init(&thread_right_attr) != 0) {
-      fprintf(stderr, "ERROR: Failed to initialize new right thread attributes\n");
+      fprintf(stderr,
+              "ERROR: Failed to initialize new right thread attributes\n");
       exit(EXIT_FAILURE);
     }
 
     // Set the stack size of the right thread
     size_t thread_right_stacksize = 1024 * 1024 * 1024;  // 1000MB
 
-    if (pthread_attr_setstacksize(&thread_right_attr, thread_right_stacksize)) {
+    if (pthread_attr_setstacksize(&thread_right_attr, thread_right_stacksize) !=
+        0) {
       fprintf(stderr, "ERROR: Failed to increase stack size of right tread\n");
       exit(EXIT_FAILURE);
     }
@@ -105,19 +110,20 @@ void *merge_sort(void *my_data) {
     pthread_t thread_right;
 
     // Create the right thread and perform merge_sort of right_block on it
-    if (pthread_create(&thread_right, &thread_right_attr, merge_sort, &right_block)) {
+    if (pthread_create(&thread_right, &thread_right_attr, merge_sort,
+                       &right_block) != 0) {
       fprintf(stderr, "ERROR: Failed to create right thread\n");
       exit(EXIT_FAILURE);
     }
 
     // Wait for the left thread to finish
-    if (pthread_join(thread_left, NULL)) {
+    if (pthread_join(thread_left, NULL) != 0) {
       fprintf(stderr, "ERROR: Failed to join left thread\n");
       exit(EXIT_FAILURE);
     }
 
     // Wait for the right thread to finish
-    if (pthread_join(thread_right, NULL)) {
+    if (pthread_join(thread_right, NULL) != 0) {
       fprintf(stderr, "ERROR: Failed to join right thread\n");
       exit(EXIT_FAILURE);
     }
@@ -142,9 +148,7 @@ void increaseStackSize() {
   const rlim_t desiredStackSize = 512 * 1024 * 1024;  // 500MB
   struct rlimit rl;
 
-  int result = getrlimit(RLIMIT_STACK, &rl);
-
-  if (result != 0) {
+  if (getrlimit(RLIMIT_STACK, &rl) != 0) {
     fprintf(stderr, "%s", "Failed to get the current stack size\n");
     exit(EXIT_FAILURE);
   }
@@ -152,9 +156,8 @@ void increaseStackSize() {
   printf("Old stack size = %ldMB\n", rl.rlim_cur / 1000000);
 
   rl.rlim_cur = desiredStackSize;
-  result = setrlimit(RLIMIT_STACK, &rl);
 
-  if (result != 0) {
+  if (setrlimit(RLIMIT_STACK, &rl) != 0) {
     fprintf(stderr, "%s", "Failed to increase the stack size\n");
     exit(EXIT_FAILURE);
   }

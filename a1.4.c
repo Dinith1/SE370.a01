@@ -95,14 +95,15 @@ void *merge_sort(void *my_data) {
       // Set the stack size of the left thread
       size_t thread_left_stacksize = 1024 * 1024 * 1024;  // 1000MB
 
-      if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize)) {
+      if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize) !=
+          0) {
         fprintf(stderr, "ERROR: Failed to increase stack size of left tread\n");
         exit(EXIT_FAILURE);
       }
 
       // Create the left thread and perform merge_sort of left_block on it
       if (pthread_create(&thread_left, &thread_left_attr, merge_sort,
-                         &left_block)) {
+                         &left_block) != 0) {
         fprintf(stderr, "ERROR: Failed to create left thread\n");
         exit(EXIT_FAILURE);
       }
@@ -114,7 +115,7 @@ void *merge_sort(void *my_data) {
       merge_sort(&right_block);
 
       // Wait for the left thread to finish
-      if (pthread_join(thread_left, NULL)) {
+      if (pthread_join(thread_left, NULL) != 0) {
         fprintf(stderr, "ERROR: Failed to join left thread\n");
         exit(EXIT_FAILURE);
       }
