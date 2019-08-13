@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #define SIZE 2
+#define STACK_SIZE 1000 * 1024 * 1024;  // 1000MB
 
 struct block {
   int size;
@@ -74,7 +75,7 @@ void *merge_sort(void *my_data) {
     if (numActiveThreads < MAX_NUM_CORES) {
       pthread_mutex_unlock(&mutex);
 
-      // Call merge_sort() on a new thread as well
+      /* Call merge_sort() on a new thread as well as the current thread */
 
       pthread_mutex_lock(&mutex);
       numActiveThreads++;
@@ -89,7 +90,7 @@ void *merge_sort(void *my_data) {
       }
 
       // Set the stack size of the left thread
-      size_t thread_left_stacksize = 1024 * 1024 * 1024;  // 1000MB
+      size_t thread_left_stacksize = STACK_SIZE;
 
       if (pthread_attr_setstacksize(&thread_left_attr, thread_left_stacksize) != 0) {
         fprintf(stderr, "ERROR: Failed to increase stack size of left tread\n");
@@ -118,7 +119,8 @@ void *merge_sort(void *my_data) {
     } else {
       pthread_mutex_unlock(&mutex);
 
-      // Call merge_sort() on the current thread only
+      /* Call merge_sort() on the current thread only */
+
       merge_sort(&left_block);
       merge_sort(&right_block);
     }
@@ -140,7 +142,7 @@ bool is_sorted(int data[], int size) {
 
 /* Increase the stack size */
 void increaseStackSize() {
-  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 500MB
+  const rlim_t desiredStackSize = STACK_SIZE;
   struct rlimit rl;
 
   if (getrlimit(RLIMIT_STACK, &rl) != 0) {

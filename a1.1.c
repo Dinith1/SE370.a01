@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #define SIZE 2
+#define STACK_SIZE 1000 * 1024 * 1024;  // 1000MB
 
 struct block {
   int size;
@@ -79,12 +80,10 @@ bool is_sorted(int data[], int size) {
 
 /* Increase the stack size */
 void increaseStackSize() {
-  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
+  const rlim_t desiredStackSize = STACK_SIZE;
   struct rlimit rl;
 
-  int result = getrlimit(RLIMIT_STACK, &rl);
-
-  if (result != 0) {
+  if (getrlimit(RLIMIT_STACK, &rl) != 0) {
     fprintf(stderr, "%s", "Failed to get the current stack size\n");
     exit(EXIT_FAILURE);
   }
@@ -92,9 +91,8 @@ void increaseStackSize() {
   printf("Old stack size = %ldMB\n", rl.rlim_cur / 1000000);
 
   rl.rlim_cur = desiredStackSize;
-  result = setrlimit(RLIMIT_STACK, &rl);
 
-  if (result != 0) {
+  if (setrlimit(RLIMIT_STACK, &rl) != 0) {
     fprintf(stderr, "%s", "Failed to increase the stack size\n");
     exit(EXIT_FAILURE);
   }
@@ -124,15 +122,8 @@ int main(int argc, char *argv[]) {
   }
 
   printf("starting---\n");
-  clock_t begin = clock();  // Start timing
-
   merge_sort(&start_block);
-
-  clock_t end = clock();  // End timing
-  double time = (double)(end - begin) / CLOCKS_PER_SEC;
   printf("---ending\n");
-
-  printf("Time taken: %.9f\n", time);
 
   printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
   exit(EXIT_SUCCESS);

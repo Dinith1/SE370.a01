@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #define SIZE 2
+#define STACK_SIZE 1000 * 1024 * 1024;  // 1000MB
 
 struct block {
   int size;
@@ -82,7 +83,7 @@ bool is_sorted(int data[], int size) {
 
 /* Increase the stack size */
 void increaseStackSize() {
-  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 1000MB
+  const rlim_t desiredStackSize = STACK_SIZE;
   struct rlimit rl;
 
   if (getrlimit(RLIMIT_STACK, &rl) != 0) {
@@ -145,7 +146,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Set the stack size of the second thread
-  size_t thread2_stacksize = 1024 * 1024 * 1024;  // 1000MB
+  size_t thread2_stacksize = STACK_SIZE;
 
   if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize) != 0) {
     fprintf(stderr, "ERROR: Failed to increase stack size of second tread\n");
