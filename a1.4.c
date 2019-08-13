@@ -27,6 +27,7 @@ struct block {
 
 pthread_mutex_t mutex;
 int numActiveThreads;
+int MAX_NUM_CORES;
 
 // void print_block_data(struct block *blk) {
 //     printf("size: %d address: %p\n", blk->size, blk->first);
@@ -172,9 +173,22 @@ void increaseStackSize() {
   printf("New stack size = %ldMB\n", rl.rlim_cur / 1000000);
 }
 
+/* Check if there's at least 4 available cores on the machine */
+bool check4Cores() {
+  return (MAX_NUM_CORES = get_nprocs()) >= 4;
+}
+
 int main(int argc, char *argv[]) {
   // Set the stack size of the original thread first
   increaseStackSize();
+
+  // Check if there's at least 4 cores on the machine
+  if (!check4Cores()) {
+    fprintf(stderr, "ERROR: Need at least 4 cores (you have %d)\n", MAX_NUM_CORES);
+    exit(EXIT_FAILURE);
+  }
+
+  printf("A maximum of %d cores will be used\n", MAX_NUM_CORES);
 
   long size;
 
@@ -201,13 +215,6 @@ int main(int argc, char *argv[]) {
   }
 
   numActiveThreads = 1;
-
-  printf(
-      "This system has %d processors configured and "
-      "%d processors available.\n",
-      get_nprocs_conf(), get_nprocs());
-
-  printf("This system has %ld processors configureddd\n ", sysconf(_SC_NPROCESSORS_ONLN));
 
   // printf("starting---\n");
   // merge_sort(&start_block);
