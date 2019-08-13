@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
       "%d processors available.\n",
       get_nprocs_conf(), get_nprocs());
 
-  printf("This system has %d processors configureddd\n ",
+  printf("This system has %f processors configureddd\n ",
          sysconf(_SC_NPROCESSORS_ONLN));
 
   // printf("starting---\n");
