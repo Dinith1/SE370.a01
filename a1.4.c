@@ -72,6 +72,8 @@ void *merge_sort(void *my_data) {
     pthread_mutex_lock(&mutex);
 
     if (numActiveThreads == MAX_NUM_CORES) {
+      pthread_mutex_unlock(&mutex);
+
       // Call merge_sort() on the current thread
       merge_sort(&left_block);
 
