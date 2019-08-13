@@ -71,14 +71,7 @@ void *merge_sort(void *my_data) {
 
     pthread_mutex_lock(&mutex);
 
-    if (numActiveThreads == MAX_NUM_CORES) {
-      pthread_mutex_unlock(&mutex);
-
-      // Call merge_sort() on the current thread only
-      merge_sort(&left_block);
-      merge_sort(&right_block);
-
-    } else {
+    if (numActiveThreads < MAX_NUM_CORES) {
       pthread_mutex_unlock(&mutex);
 
       // Call merge_sort() on a new thread as well
@@ -109,6 +102,7 @@ void *merge_sort(void *my_data) {
         exit(EXIT_FAILURE);
       }
 
+      // merge_sort the right_block on the current thread
       merge_sort(&right_block);
 
       // Wait for the left thread to finish
@@ -120,6 +114,13 @@ void *merge_sort(void *my_data) {
       pthread_mutex_lock(&mutex);
       numActiveThreads--;
       pthread_mutex_unlock(&mutex);
+
+    } else {
+      pthread_mutex_unlock(&mutex);
+
+      // Call merge_sort() on the current thread only
+      merge_sort(&left_block);
+      merge_sort(&right_block);
     }
 
     merge(&left_block, &right_block);
@@ -139,7 +140,7 @@ bool is_sorted(int data[], int size) {
 
 /* Increase the stack size */
 void increaseStackSize() {
-  const rlim_t desiredStackSize = 512 * 1024 * 1024;  // 500MB
+  const rlim_t desiredStackSize = 1024 * 1024 * 1024;  // 500MB
   struct rlimit rl;
 
   if (getrlimit(RLIMIT_STACK, &rl) != 0) {
