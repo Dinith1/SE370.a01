@@ -26,7 +26,7 @@ struct block {
   int *first;
 };
 
-pthread_mutex_t mutex;
+pthread_spinlock_t spinlock;
 int numActiveThreads;
 int MAX_NUM_CORES;
 
@@ -70,16 +70,16 @@ void *merge_sort(void *my_data) {
 
     pthread_t thread_left;
 
-    pthread_mutex_lock(&mutex);
+    pthread_spin_lock(&spinlock);
 
     if (numActiveThreads < MAX_NUM_CORES) {
-      pthread_mutex_unlock(&mutex);
+      pthread_spin_unlock(&spinlock);
 
       /* Call merge_sort() on a new thread as well as the current thread */
 
-      pthread_mutex_lock(&mutex);
+      pthread_spin_lock(&spinlock);
       numActiveThreads++;
-      pthread_mutex_unlock(&mutex);
+      pthread_spin_unlock(&spinlock);
 
       // Create/set attributes of the 'left' thread that will be created
       pthread_attr_t thread_left_attr;
@@ -112,12 +112,12 @@ void *merge_sort(void *my_data) {
         exit(EXIT_FAILURE);
       }
 
-      pthread_mutex_lock(&mutex);
+      pthread_spin_lock(&spinlock);
       numActiveThreads--;
-      pthread_mutex_unlock(&mutex);
+      pthread_spin_unlock(&spinlock);
 
     } else {
-      pthread_mutex_unlock(&mutex);
+      pthread_spin_unlock(&spinlock);
 
       /* Call merge_sort() on the current thread only */
 
@@ -198,9 +198,9 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
-  // Initialize the mutex
-  if (pthread_mutex_init(&mutex, NULL) != 0) {
-    fprintf(stderr, "ERROR: Failed to initialize the mutex\n");
+  // Initialize the spinlock
+  if (pthread_spin_init(&spinlock, PTHREAD_PROCESS_SHARED) != 0) {
+    fprintf(stderr, "ERROR: Failed to initialize the spinlock\n");
     exit(EXIT_FAILURE);
   }
 
@@ -212,13 +212,4 @@ int main(int argc, char *argv[]) {
 
   printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
   exit(EXIT_SUCCESS);
-} /*
-     The Merge Sort to use for Operating Systems Assignment 1 2019
-     written by Robert Sheehan
-
-     Modified by: Dinith Wannigama
-     UPI: dwan609
-
-     By submitting a program you are claiming that you and only you have made
-     adjustments and additions to this code.
- 
+}
