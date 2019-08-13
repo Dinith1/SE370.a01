@@ -76,6 +76,8 @@ void *merge_sort(void *my_data) {
       merge_sort(&left_block);
 
     } else {
+      pthread_mutex_unlock(&mutex);
+
       // Call merge_sort() on a new thread
 
       // Create/set attributes of the 'left' thread that will be created
@@ -102,10 +104,10 @@ void *merge_sort(void *my_data) {
         exit(EXIT_FAILURE);
       }
 
+      pthread_mutex_lock(&mutex);
       numActiveThreads++;
+      pthread_mutex_unlock(&mutex);
     }
-
-    pthread_mutex_unlock(&mutex);
 
     merge_sort(&right_block);
 
