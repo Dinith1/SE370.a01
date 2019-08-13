@@ -74,13 +74,14 @@ void *merge_sort(void *my_data) {
     if (numActiveThreads == MAX_NUM_CORES) {
       pthread_mutex_unlock(&mutex);
 
-      // Call merge_sort() on the current thread
+      // Call merge_sort() on the current thread only
       merge_sort(&left_block);
+      merge_sort(&right_block);
 
     } else {
       pthread_mutex_unlock(&mutex);
 
-      // Call merge_sort() on a new thread
+      // Call merge_sort() on a new thread as well
 
       // Create/set attributes of the 'left' thread that will be created
       pthread_attr_t thread_left_attr;
@@ -109,19 +110,19 @@ void *merge_sort(void *my_data) {
       pthread_mutex_lock(&mutex);
       numActiveThreads++;
       pthread_mutex_unlock(&mutex);
+
+      merge_sort(&right_block);
+
+      // Wait for the left thread to finish
+      if (pthread_join(thread_left, NULL)) {
+        fprintf(stderr, "ERROR: Failed to join left thread\n");
+        exit(EXIT_FAILURE);
+      }
+
+      pthread_mutex_lock(&mutex);
+      numActiveThreads--;
+      pthread_mutex_unlock(&mutex);
     }
-
-    merge_sort(&right_block);
-
-    // Wait for the left thread to finish
-    if (pthread_join(thread_left, NULL)) {
-      fprintf(stderr, "ERROR: Failed to join left thread\n");
-      exit(EXIT_FAILURE);
-    }
-
-    pthread_mutex_lock(&mutex);
-    numActiveThreads--;
-    pthread_mutex_unlock(&mutex);
 
     merge(&left_block, &right_block);
   }
