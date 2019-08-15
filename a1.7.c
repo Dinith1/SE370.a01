@@ -112,6 +112,8 @@ void *merge_sort(void *my_data) {
         // Close pipe writer
         close(fd[1]);
 
+        numActiveProcesses--;
+
         exit(EXIT_SUCCESS);
       }
     } else {
