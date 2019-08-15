@@ -111,6 +111,8 @@ void *merge_sort(void *my_data) {
 
         // Close pipe writer
         close(fd[1]);
+
+        exit(EXIT_SUCCESS);
       }
     } else {
       merge_sort(&left_block);
@@ -179,8 +181,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Set the number of processes with mmap, so that all processes can share it
-  numActiveProcesses =
-      mmap(NULL, sizeof(numActiveProcesses), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+  numActiveProcesses = mmap(NULL, sizeof(numActiveProcesses), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
   *numActiveProcesses = 1;
 
   printf("A maximum of %d cores will be used\n", MAX_NUM_CORES);
