@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
     merge_sort(&right_block);
 
     // Read the data in the pipe from the child process
-    read(fd[0], right_block.first, right_block.size * sizeof(int));
+    read(fd[0], &right_block, right_block.size * sizeof(int));
 
     // Close the pipe reader so only reading allowed
     close(fd[0]);
