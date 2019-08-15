@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
     merge_sort(&left_block);
 
     // Write the sorted block the pipe
-    write(fd[1], right_block.first, right_block.size * sizeof(int));
+    write(fd[1], left_block.first, left_block.size * sizeof(int));
 
     // Close pipe writer
     close(fd[1]);
