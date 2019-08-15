@@ -137,38 +137,47 @@ int main(int argc, char *argv[]) {
 
   printf("starting---\n");
 
-  // Create/set attributes of the second thread that will be created
-  pthread_attr_t thread2_attr;
+  int fd[2];
 
-  if (pthread_attr_init(&thread2_attr) != 0) {
-    fprintf(stderr, "ERROR: Failed to initialize new thread attributes\n");
+  // Initialize the pipe
+  if (pipe(fd) != 0) {
+    fprintf(stderr, "Failed to create the pipe\n");
     exit(EXIT_FAILURE);
   }
 
-  // Set the stack size of the second thread
-  size_t thread2_stacksize = STACK_SIZE;
+  int pid;
 
-  if (pthread_attr_setstacksize(&thread2_attr, thread2_stacksize) != 0) {
-    fprintf(stderr, "ERROR: Failed to increase stack size of second tread\n");
+  if ((pid = fork()) < 0) {
+    fprintf(stderr, "Failed to create the second process\n");
     exit(EXIT_FAILURE);
+
+  } else if (pid == 0) {
+    /* Child process */
+
+    // Close pipe reader so only writing allowed
+    close(fd[0]);
+
+    merge_sort(&right_block);
+
+    // Write the sorted block the pipe
+    write(fd[1], right_block.first, right_block.size * sizeof(int));
+
+    // Close pipe writer
+    close(fd[1]);
   }
 
-  pthread_t thread2;
+  /* Parent process */
 
-  // Create a second thread and perform merge_sort of left_block on it
-  if (pthread_create(&thread2, &thread2_attr, merge_sort, &left_block) != 0) {
-    fprintf(stderr, "ERROR: Failed to create second thread\n");
-    exit(EXIT_FAILURE);
-  }
+  // Close pipe writer
+  close(fd[1]);
 
-  // Perform merge_sort of the right_block on the original thread
   merge_sort(&right_block);
 
-  // Wait for the second thread to finish
-  if (pthread_join(thread2, NULL) != 0) {
-    fprintf(stderr, "ERROR: Failed to join thread\n");
-    exit(EXIT_FAILURE);
-  }
+  // Read the data in the pipe from the child process
+  read(fd[0], right_block.first, right_block.size * sizeof(int));
+
+  // Close the pipe reader so only reading allowed
+  close(fd[0]);
 
   // Finally merge sorted blocks from the two threads
   merge(&left_block, &right_block);
