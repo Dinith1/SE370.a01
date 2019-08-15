@@ -151,7 +151,28 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Failed to create the second process\n");
     exit(EXIT_FAILURE);
 
-  } else if (pid == 0) {
+  } else if (pid > 0) {
+    /* Parent process */
+
+    // Close pipe writer
+    close(fd[1]);
+
+    merge_sort(&right_block);
+
+    // Read the data in the pipe from the child process
+    read(fd[0], right_block.first, right_block.size * sizeof(int));
+
+    // Close the pipe reader so only reading allowed
+    close(fd[0]);
+
+    // Finally merge sorted blocks from the two threads
+    merge(&left_block, &right_block);
+
+    printf("---ending\n");
+
+    printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
+    exit(EXIT_SUCCESS);
+  } else {
     /* Child process */
 
     // Close pipe reader so only writing allowed
@@ -165,25 +186,4 @@ int main(int argc, char *argv[]) {
     // Close pipe writer
     close(fd[1]);
   }
-
-  /* Parent process */
-
-  // Close pipe writer
-  close(fd[1]);
-
-  merge_sort(&right_block);
-
-  // Read the data in the pipe from the child process
-  read(fd[0], right_block.first, right_block.size * sizeof(int));
-
-  // Close the pipe reader so only reading allowed
-  close(fd[0]);
-
-  // Finally merge sorted blocks from the two threads
-  merge(&left_block, &right_block);
-
-  printf("---ending\n");
-
-  printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
-  exit(EXIT_SUCCESS);
 }
