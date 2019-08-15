@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
     // Close pipe writer
     close(fd[1]);
 
-    merge_sort(&right_block);
+    merge_sort(&left_block);
 
     // Read the data in the pipe from the child process
     read(fd[0], right_block.first, right_block.size * sizeof(int));
@@ -178,10 +178,10 @@ int main(int argc, char *argv[]) {
     // Close pipe reader so only writing allowed
     close(fd[0]);
 
-    merge_sort(&left_block);
+    merge_sort(&right_block);
 
     // Write the sorted block the pipe
-    write(fd[1], left_block.first, left_block.size * sizeof(int));
+    write(fd[1], right_block.first, right_block.size * sizeof(int));
 
     // Close pipe writer
     close(fd[1]);
