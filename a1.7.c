@@ -76,16 +76,17 @@ void *merge_sort(void *my_data) {
         exit(EXIT_FAILURE);
       }
 
+      (*numActiveProcesses)++;
+
       pid_t pid;
 
       if ((pid = fork()) < 0) {
+        (*numActiveProcesses)--;
         fprintf(stderr, "Failed to create the new process\n");
         exit(EXIT_FAILURE);
 
       } else if (pid > 0) {
         /* Parent process */
-
-        (*numActiveProcesses)++;
 
         // Close pipe writer
         close(fd[1]);
@@ -111,8 +112,6 @@ void *merge_sort(void *my_data) {
 
         // Close pipe writer
         close(fd[1]);
-
-        numActiveProcesses--;
 
         exit(EXIT_SUCCESS);
       }
