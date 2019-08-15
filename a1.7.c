@@ -85,7 +85,7 @@ void *merge_sort(void *my_data) {
       } else if (pid > 0) {
         /* Parent process */
 
-        numActiveProcesses++;
+        (*numActiveProcesses)++;
 
         // Close pipe writer
         close(fd[1]);
