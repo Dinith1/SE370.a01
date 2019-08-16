@@ -9,13 +9,13 @@
     adjustments and additions to this code.
  */
 
-#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define SIZE 2
@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
 
     // Wait for child process to finish
     wait(NULL);
-    
+
     // Finally merge sorted blocks from the two threads
     merge(&left_block, &right_block);
 
