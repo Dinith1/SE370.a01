@@ -153,9 +153,8 @@ int main(int argc, char *argv[]) {
     merge_sort(&left_block);
 
     // Wait for child process to finish
-    while (NULL)
-      ;
-
+    wait(NULL);
+    
     // Finally merge sorted blocks from the two threads
     merge(&left_block, &right_block);
 
