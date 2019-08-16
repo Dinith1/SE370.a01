@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+#include <sys/sysinfo.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -25,6 +26,9 @@ struct block {
   int size;
   int *first;
 };
+
+int MAX_NUM_CORES;
+int *numActiveProcesses;
 
 // void print_block_data(struct block *blk) {
 //     printf("size: %d address: %p\n", blk->size, blk->first);
@@ -64,8 +68,33 @@ void *merge_sort(void *my_data) {
     right_block.size = left_block.size + (my_data_cast->size % 2);
     right_block.first = my_data_cast->first + left_block.size;
 
-    merge_sort(&left_block);
-    merge_sort(&right_block);
+    if (*numActiveProcesses < MAX_NUM_CORES) {
+      (*numActiveProcesses)++;
+
+      pid_t pid;
+
+      if ((pid = fork()) < 0) {
+        (*numActiveProcesses)--;
+        fprintf(stderr, "Failed to create the new process\n");
+        exit(EXIT_FAILURE);
+
+      } else if (pid > 0) {
+        /* Parent process */
+
+        merge_sort(&left_block);
+
+        wait(NULL);
+      } else {
+        /* Child process */
+
+        merge_sort(&right_block);
+
+        exit(EXIT_SUCCESS);
+      }
+    } else {
+      merge_sort(&left_block);
+      merge_sort(&right_block);
+    }
 
     merge(&left_block, &right_block);
   }
@@ -108,6 +137,8 @@ int main(int argc, char *argv[]) {
   // Set the stack size of the original thread first
   increaseStackSize();
 
+  MAX_NUM_CORES = get_nprocs();
+
   long size;
 
   if (argc < 2) {
@@ -129,42 +160,16 @@ int main(int argc, char *argv[]) {
     data[i] = rand();
   }
 
-  // Split data into two blocks for processing on two threads
-  struct block left_block;
-  struct block right_block;
+  // Set the number of processes with mmap, so that all processes can share it
+  numActiveProcesses = mmap(NULL, sizeof(numActiveProcesses), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+  *numActiveProcesses = 1;
 
-  left_block.size = start_block.size / 2;
-  left_block.first = start_block.first;
-
-  right_block.size = left_block.size + (start_block.size % 2);
-  right_block.first = start_block.first + left_block.size;
+  printf("A maximum of %d cores will be used\n", MAX_NUM_CORES);
 
   printf("starting---\n");
+  merge_sort(&start_block);
+  printf("---ending\n");
 
-  pid_t pid;
-
-  if ((pid = fork()) < 0) {
-    fprintf(stderr, "Failed to create the second process\n");
-    exit(EXIT_FAILURE);
-
-  } else if (pid > 0) {
-    /* Parent process */
-
-    merge_sort(&left_block);
-
-    // Wait for child process to finish
-    wait(NULL);
-
-    // Finally merge sorted blocks from the two threads
-    merge(&left_block, &right_block);
-
-    printf("---ending\n");
-
-    printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
-    exit(EXIT_SUCCESS);
-  } else {
-    /* Child process */
-
-    merge_sort(&right_block);
-  }
+  printf(is_sorted(data, size) ? "sorted\n" : "not sorted\n");
+  exit(EXIT_SUCCESS);
 }
