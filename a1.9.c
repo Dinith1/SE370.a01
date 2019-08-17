@@ -89,6 +89,7 @@ void *merge_sort(void *my_data) {
 
         merge_sort(&right_block);
 
+	(*numActiveProcesses)--;
         exit(EXIT_SUCCESS);
       }
     } else {
