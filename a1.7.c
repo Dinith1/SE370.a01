@@ -107,7 +107,7 @@ void *merge_sort(void *my_data) {
 
         merge_sort(&right_block);
 
-        // Write the sorted block the pipe
+        // Write the sorted block to the pipe
         write(fd[1], right_block.first, right_block.size * sizeof(int));
 
         // Close pipe writer
