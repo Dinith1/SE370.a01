@@ -88,8 +88,8 @@ void *merge_sort(void *my_data) {
         /* Child process */
 
         merge_sort(&right_block);
-
-	(*numActiveProcesses)--;
+        (*numActiveProcesses)--;
+        
         exit(EXIT_SUCCESS);
       }
     } else {
